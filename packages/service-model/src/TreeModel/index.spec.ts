@@ -606,6 +606,41 @@ describe('TreeModel parser', () => {
         expect((shape as Timestamp).timestampFormat).toBe(timestampValidServiceMetadata.timestampFormat);
     });
 
+    it('should prefer timestampFormat on member reference instead of shape', () => {
+        const api = fromModelJson(JSON.stringify({
+            metadata: timestampValidServiceMetadata,
+            operations: {
+                GetFoo: {
+                    name: 'GetFoo',
+                    http: {
+                        method: 'GET',
+                        requestUri: '',
+                    },
+                    input: {shape: 'GetFooInput'},
+                },
+            },
+            shapes: {
+                Foo: {
+                    type: 'timestamp',
+                    timestampFormat: 'rfc822'
+                },
+                GetFooInput: {
+                    type: 'structure',
+                    members: {
+                        foo: {
+                            timestampFormat: 'iso8601',
+                            shape: 'Foo'
+                        }
+                    }
+                }
+            }
+        }));
+
+        const {shape} = api.operations.GetFoo.input.shape.members.foo;
+        expect((shape as Timestamp).timestampFormat).not.toBeUndefined();
+        expect((shape as Timestamp).timestampFormat).toBe('iso8601');
+    });
+
     it('should preserve required traits on structures', () => {
         const api = fromModelJson(JSON.stringify({
             metadata: minimalValidServiceMetadata,

@@ -63,7 +63,7 @@ export function fromApiModel(model: ApiModel): TreeModel {
     const {metadata} = normalized;
     const {documentation = `${metadata.serviceFullName} service`} = normalized;
 
-    const shapes = fromApiModelShapeMap(normalized.shapes, metadata);
+    const shapes = fromApiModelShapeMap(normalized.shapes, metadata, model);
     const operations = fromApiModelOperationMap(
         normalized.operations,
         shapes,
@@ -79,7 +79,7 @@ export function fromApiModel(model: ApiModel): TreeModel {
     };
 }
 
-function fromApiModelShapeMap(shapeMap: ShapeMap, metadata: ServiceMetadata): TreeModelShapeMap {
+function fromApiModelShapeMap(shapeMap: ShapeMap, metadata: ServiceMetadata, model: ApiModel): TreeModelShapeMap {
     const map: {[name: string]: any} = Object.keys(shapeMap)
         .reduce((carry, item) => ({...carry, [item]: {}}), {});
 
@@ -92,6 +92,11 @@ function fromApiModelShapeMap(shapeMap: ShapeMap, metadata: ServiceMetadata): Tr
         target.sensitive = shape.sensitive;
         target.deprecated = shape.deprecated;
         target.type = getSerializationType(shape);
+
+        let memberTimestampFormat;
+        if (shape.type == "timestamp") {
+            // get memberTimestampFormat from model?
+        }
 
         switch (shape.type) {
             case 'blob':
@@ -124,7 +129,7 @@ function fromApiModelShapeMap(shapeMap: ShapeMap, metadata: ServiceMetadata): Tr
                 visitStructure(target, shape, map);
                 break;
             case 'timestamp':
-                visitTimestamp(target, shape, metadata.timestampFormat);
+                visitTimestamp(target, shape, memberTimestampFormat);
                 break;
         }
     });
@@ -219,9 +224,9 @@ function visitString(
 function visitTimestamp(
     toPopulate: Partial<ProtocolTimestamp>,
     sourceData: Timestamp,
-    serviceTimestampFormat?: string
+    memberRefTimestampFormat: string|undefined
 ): void {
-    toPopulate.timestampFormat = sourceData.timestampFormat || serviceTimestampFormat;
+    toPopulate.timestampFormat = memberRefTimestampFormat || sourceData.timestampFormat;
 }
 
 function visitList(
@@ -254,7 +259,8 @@ function visitMap(
 function visitStructure(
     toPopulate: Partial<TreeModelStructure>,
     sourceData: Structure,
-    shapeMap: TreeModelShapeMap
+    shapeMap: TreeModelShapeMap,
+    //timestampFormat: string|undefined,
 ): void {
     toPopulate.required = sourceData.required || [];
     toPopulate.topLevel = sourceData.topLevel;
