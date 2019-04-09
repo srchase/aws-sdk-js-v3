@@ -224,7 +224,7 @@ function visitString(
 function visitTimestamp(
     toPopulate: Partial<ProtocolTimestamp>,
     sourceData: Timestamp,
-    memberRefTimestampFormat: string|undefined
+    memberRefTimestampFormat?: string
 ): void {
     toPopulate.timestampFormat = memberRefTimestampFormat || sourceData.timestampFormat;
 }
@@ -259,8 +259,7 @@ function visitMap(
 function visitStructure(
     toPopulate: Partial<TreeModelStructure>,
     sourceData: Structure,
-    shapeMap: TreeModelShapeMap,
-    //timestampFormat: string|undefined,
+    shapeMap: TreeModelShapeMap
 ): void {
     toPopulate.required = sourceData.required || [];
     toPopulate.topLevel = sourceData.topLevel;
