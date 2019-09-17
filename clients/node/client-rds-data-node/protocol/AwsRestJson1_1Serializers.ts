@@ -1,4 +1,14 @@
+import { HttpRequest } from "@aws-sdk/types";
 import { Field, SqlParameter } from "../models/com/amazon/rdsdataservice";
+
+export function AwsRestJson1_1Finalize(input: any): HttpRequest {
+  input.protocol = "https:";
+  input.body = JSON.stringify(input.body);
+  input.headers = {
+    "Content-Type": "application/json"
+  };
+  return input;
+}
 
 export function SqlParameterListAwsRestJson1_1Serialize(
   input: Array<SqlParameter>

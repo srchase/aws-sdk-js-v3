@@ -1,6 +1,9 @@
 import { HttpRequest } from "@aws-sdk/types";
 import { ExecuteStatementRequest } from "../models/com/amazon/rdsdataservice";
-import { SqlParameterListAwsRestJson1_1Serialize } from "./AwsRestJson1_1Serializers";
+import {
+  SqlParameterListAwsRestJson1_1Serialize,
+  AwsRestJson1_1Finalize
+} from "./AwsRestJson1_1Serializers";
 
 export function ExecuteStatementSerializer(
   input: ExecuteStatementRequest,
@@ -54,14 +57,11 @@ function ExecuteStatementAwsRestJson1_1Serialize(
     body.continueAfterTimeout = input.continueAfterTimeout;
   }
 
-  return {
+  let request = {
+    body: body,
     method: "POST",
-    hostname: "rdsdataservice.us-east-1.amazonaws.com",
-    path: "/execute",
-    protocol: "https:",
-    body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json"
-    }
+    path: "/execute"
   };
+
+  return AwsRestJson1_1Finalize(request);
 }
