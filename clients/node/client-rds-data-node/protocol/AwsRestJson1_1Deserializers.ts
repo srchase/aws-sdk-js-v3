@@ -74,7 +74,7 @@ export function columnMetadataListAwsRestJson1_1Deserialize(
   for (let ColumnMetadata of input) {
     list.push(columnMetadataAwsRestJson1_1Deserialize(ColumnMetadata));
   }
-  return input;
+  return list;
 }
 
 export function fieldAwsRestJson1_1Deserialize(input: any): Field {
@@ -88,7 +88,7 @@ export function generatedFieldsAwsRestJson1_1Deserialize(
   for (let Field of input) {
     list.push(fieldAwsRestJson1_1Deserialize(Field));
   }
-  return input;
+  return list;
 }
 
 export function recordsAwsRestJson1_1Deserialize(
