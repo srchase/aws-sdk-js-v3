@@ -1,4 +1,5 @@
 import { Field, ColumnMetadata } from "../models/com/amazon/rdsdataservice";
+import { fieldAwsRestJson1_1Serialize } from "./AwsRestJson1_1Serializers";
 
 export function columnMetadataAwsRestJson1_1Deserialize(
   input: any
@@ -77,7 +78,7 @@ export function columnMetadataListAwsRestJson1_1Deserialize(
 }
 
 export function fieldAwsRestJson1_1Deserialize(input: any): Field {
-  return input;
+  return input.visit(input, {});
 }
 
 export function generatedFieldsAwsRestJson1_1Deserialize(
@@ -93,5 +94,17 @@ export function generatedFieldsAwsRestJson1_1Deserialize(
 export function recordsAwsRestJson1_1Deserialize(
   input: any
 ): Array<Array<Field>> {
-  return input;
+  let list: Array<Array<Field>> = [];
+  for (let recordsList of input) {
+    list.push(recordsListAwsRestJson1_1Deserialize(input));
+  }
+  return list;
+}
+
+export function recordsListAwsRestJson1_1Deserialize(input: any): Array<Field> {
+  let list: Array<Field> = [];
+  for (let Field of input) {
+    list.push(fieldAwsRestJson1_1Serialize(input));
+  }
+  return list;
 }
