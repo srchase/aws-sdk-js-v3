@@ -11,39 +11,39 @@ export function executeStatementAwsRestJson1_1Serialize(
   input: ExecuteStatementRequest
 ): HttpRequest {
   let body: any = {};
-  if (input.resourceArn) {
+  if (input.resourceArn !== undefined) {
     body.resourceArn = input.resourceArn;
   }
 
-  if (input.secretArn) {
+  if (input.secretArn !== undefined) {
     body.secretArn = input.secretArn;
   }
 
-  if (input.sql) {
+  if (input.sql !== undefined) {
     body.sql = input.sql;
   }
 
-  if (input.database) {
+  if (input.database !== undefined) {
     body.database = input.database;
   }
 
-  if (input.schema) {
+  if (input.schema !== undefined) {
     body.schema = input.schema;
   }
 
-  if (input.parameters) {
+  if (input.parameters !== undefined) {
     body.parameters = sqlParameterListAwsRestJson1_1Serialize(input.parameters);
   }
 
-  if (input.transactionId) {
+  if (input.transactionId !== undefined) {
     body.transactionId = input.transactionId;
   }
 
-  if (input.includeResultMetadata) {
+  if (input.includeResultMetadata !== undefined) {
     body.includeResultMetadata = input.includeResultMetadata;
   }
 
-  if (input.continueAfterTimeout) {
+  if (input.continueAfterTimeout !== undefined) {
     body.continueAfterTimeout = input.continueAfterTimeout;
   }
 
@@ -114,59 +114,59 @@ export function columnMetadataAwsRestJson1_1Deserialize(
     $namespace: "com.amazon.rdsdataservice",
     $name: "ColumnMetadata"
   };
-  if (input.nullable) {
+  if (input.nullable !== undefined) {
     columnMetadata.nullable = input.nullable;
   }
 
-  if (input.label) {
+  if (input.label !== undefined) {
     columnMetadata.label = input.label;
   }
 
-  if (input.typeName) {
+  if (input.typeName !== undefined) {
     columnMetadata.typeName = input.typeName;
   }
 
-  if (input.isCaseSensitive) {
+  if (input.isCaseSensitive !== undefined) {
     columnMetadata.isCaseSensitive = input.isCaseSensitive;
   }
 
-  if (input.isCurrency) {
+  if (input.isCurrency !== undefined) {
     columnMetadata.isCurrency = input.isCurrency;
   }
 
-  if (input.arrayBaseColumnType) {
+  if (input.arrayBaseColumnType !== undefined) {
     columnMetadata.arrayBaseColumnType = input.arrayBaseColumnType;
   }
 
-  if (input.precision) {
+  if (input.precision !== undefined) {
     columnMetadata.precision = input.precision;
   }
 
-  if (input.type) {
+  if (input.type !== undefined) {
     columnMetadata.type = input.type;
   }
 
-  if (input.isSigned) {
+  if (input.isSigned !== undefined) {
     columnMetadata.isSigned = input.isSigned;
   }
 
-  if (input.schemeName) {
+  if (input.schemeName !== undefined) {
     columnMetadata.schemeName = input.schemeName;
   }
 
-  if (input.isAutoIncrement) {
+  if (input.isAutoIncrement !== undefined) {
     columnMetadata.isAutoIncrement = input.isAutoIncrement;
   }
 
-  if (input.name) {
+  if (input.name !== undefined) {
     columnMetadata.name = input.name;
   }
 
-  if (input.scale) {
+  if (input.scale !== undefined) {
     columnMetadata.scale = input.scale;
   }
 
-  if (input.tableName) {
+  if (input.tableName !== undefined) {
     columnMetadata.tableName = input.tableName;
   }
 
