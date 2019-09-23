@@ -47,13 +47,15 @@ export function executeStatementAwsRestJson1_1Serialize(
     body.continueAfterTimeout = input.continueAfterTimeout;
   }
 
-  let request = {
-    body: body,
+  return new Http2ServerRequest({
+    body: JSON.stringify(body);
+    path: "/execute",
     method: "POST",
-    path: "/execute"
-  };
-
-  return finalize(request);
+    protocol: "https:",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
 }
 
 export function executeStatementAwsRestJson1_1Deserialize(
