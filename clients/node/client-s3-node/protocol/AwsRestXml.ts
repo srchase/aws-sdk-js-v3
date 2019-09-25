@@ -1,13 +1,19 @@
 import { HttpRequest, HttpResponse, HeaderBag } from "@aws-sdk/protocol-http";
 import { XmlNode, XmlText } from "@aws-sdk/xml-builder";
 import {
+  GetObjectLockConfigurationOutput,
+  ObjectLockConfiguration,
   PutObjectRequest,
   PutObjectOutput,
   PutObjectTaggingRequest,
   PutObjectTaggingOutput,
   Tag,
-  Tagging
+  Tagging,
+  ObjectLockRule,
+  DefaultRetention,
+  ObjectLockEnabled
 } from "../models/com/amazonaws/s3";
+import { parse as pixlParse, XMLParseOutput } from "../vendor/pixl-xml";
 
 export function putObjectAwsRestXmlSerialize(
   input: PutObjectRequest
@@ -232,5 +238,47 @@ export function putObjectAwsRestXmlDeserialize(
 export function putObjectTaggingAwsRestXmlDeserialize(
   input: HttpResponse
 ): PutObjectTaggingOutput {
-  return new PutObjectTaggingOutput({});
+  return new PutObjectTaggingOutput({
+    VersionId: input.headers["x-amz-version-id"]
+  });
+}
+
+export function getObjectLockConfigurationAwsRestXmlDeserialize(
+  input: HttpResponse
+): GetObjectLockConfigurationOutput {
+  const xmlObj = pixlParse(input.body);
+  return new GetObjectLockConfigurationOutput({
+    ObjectLockConfiguration: objectLockConfigurationAwsRestXmlDeserialize(
+      xmlObj
+    )
+  });
+}
+
+export function objectLockConfigurationAwsRestXmlDeserialize(
+  input: any
+): ObjectLockConfiguration {
+  return new ObjectLockConfiguration({
+    Rule: objectLockRuleAwsRestXmlDeserialize(input.Rule),
+    ObjectLockEnabled: input.ObjectLockEnabled
+  });
+}
+
+export function objectLockRuleAwsRestXmlDeserialize(
+  input: any
+): ObjectLockRule {
+  return new ObjectLockRule({
+    DefaultRetention: defaultRetentionAwsRestXmlDeserialize(
+      input.DefaultRetention
+    )
+  });
+}
+
+export function defaultRetentionAwsRestXmlDeserialize(
+  input: any
+): DefaultRetention {
+  return new DefaultRetention({
+    Years: input.Years ? parseInt(input.Years) : undefined,
+    Mode: input.Mode,
+    Days: input.Days ? parseInt(input.Days) : undefined
+  });
 }
