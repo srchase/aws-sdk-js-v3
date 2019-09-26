@@ -13,7 +13,7 @@ import {
   DefaultRetention,
   ObjectLockEnabled
 } from "../models/com/amazonaws/s3";
-import { parse as pixlParse, XMLParseOutput } from "../vendor/pixl-xml";
+import { pixlParse } from "@aws-sdk/xml-body-parser";
 
 export function putObjectAwsRestXmlSerialize(
   input: PutObjectRequest
