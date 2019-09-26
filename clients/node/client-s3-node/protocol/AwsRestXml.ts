@@ -229,12 +229,6 @@ export function serializeTag(input: Tag): XmlNode {
   return tag;
 }
 
-export function putObjectAwsRestXmlDeserialize(
-  input: HttpResponse
-): PutObjectOutput {
-  return new PutObjectOutput({});
-}
-
 export function putObjectTaggingAwsRestXmlDeserialize(
   input: HttpResponse
 ): PutObjectTaggingOutput {
