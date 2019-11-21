@@ -52,6 +52,11 @@ public class AddBuiltinPlugins implements TypeScriptIntegration {
                 RuntimeClientPlugin.builder()
                         .withConventions(TypeScriptDependency.MIDDLEWARE_CONTENT_LENGTH.dependency, "ContentLength",
                                          HAS_MIDDLEWARE)
+                        .build(),
+                RuntimeClientPlugin.builder()
+                        .withConventions("@aws-sdk/middleware-glacier-checksum-headers-node", "^0.1.0-preview.7",
+                                "GlacierChecksumHeaders", HAS_MIDDLEWARE)
+                        .servicePredicate((m,s) -> s.getId().getName().equals("Glacier"))
                         .build()
         );
     }
