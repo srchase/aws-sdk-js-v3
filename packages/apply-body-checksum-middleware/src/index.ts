@@ -4,21 +4,16 @@ import {
   BuildHandlerArguments,
   BuildHandlerOutput,
   BuildMiddleware,
-  Encoder,
-  Hash,
   HeaderBag,
-  StreamHasher,
   MetadataBearer,
   BuildHandlerOptions,
   Pluggable
 } from "@aws-sdk/types";
 import { HttpRequest } from "@aws-sdk/protocol-http";
+import { ApplyBodyChecksumResolvedConfig } from "./configurations";
 
 export function applyBodyChecksumMiddleware(
-  headerName: string,
-  hashCtor: { new (): Hash },
-  encoder: Encoder,
-  streamHasher: StreamHasher<any> = throwOnStream
+  options: ApplyBodyChecksumResolvedConfig
 ): BuildMiddleware<any, any> {
   return <Output extends MetadataBearer>(
     next: BuildHandler<any, Output>
@@ -30,7 +25,7 @@ export function applyBodyChecksumMiddleware(
       return next({ ...args, request });
     }
     const { body, headers } = request;
-    if (!hasHeader(headerName, headers)) {
+    if (!hasHeader(options.headerName, headers)) {
       let digest: Promise<Uint8Array>;
 
       if (
@@ -39,18 +34,18 @@ export function applyBodyChecksumMiddleware(
         ArrayBuffer.isView(body) ||
         isArrayBuffer(body)
       ) {
-        const hash = new hashCtor();
+        const hash = new options.hashCtor();
         hash.update(body || "");
         digest = hash.digest();
       } else {
-        digest = streamHasher(hashCtor, body);
+        digest = options.streamHasher(options.hashCtor, body);
       }
 
       request = {
         ...request,
         headers: {
           ...headers,
-          [headerName]: encoder(await digest)
+          [options.headerName]: options.encoder(await digest)
         }
       };
     }
@@ -65,20 +60,12 @@ export const applyBodyChecksumMiddlewareOptions: BuildHandlerOptions = {
   name: "applyBodyChecksumMiddleware"
 };
 
-export const getApplyBodyChecksumPlugin = (options: {
-  headerName: string;
-  hashCtor: { new (): Hash };
-  encoder: Encoder;
-  streamHasher: StreamHasher<any>;
-}): Pluggable<any, any> => ({
+export const getApplyBodyChecksumPlugin = (
+  options: ApplyBodyChecksumResolvedConfig
+): Pluggable<any, any> => ({
   applyToStack: clientStack => {
     clientStack.add(
-      applyBodyChecksumMiddleware(
-        options.headerName,
-        options.hashCtor,
-        options.encoder,
-        options.streamHasher
-      ),
+      applyBodyChecksumMiddleware(options),
       applyBodyChecksumMiddlewareOptions
     );
   }
@@ -93,12 +80,4 @@ function hasHeader(soughtHeader: string, headers: HeaderBag): boolean {
   }
 
   return false;
-}
-
-function throwOnStream(stream: any): never {
-  throw new Error(
-    `applyBodyChecksumMiddleware encountered a request with a streaming body of type ${Object.prototype.toString.call(
-      stream
-    )}, but no stream hasher function was provided`
-  );
 }
