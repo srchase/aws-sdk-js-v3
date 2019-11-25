@@ -7,7 +7,10 @@ import {
   Encoder,
   Hash,
   HeaderBag,
-  StreamHasher
+  StreamHasher,
+  MetadataBearer,
+  BuildHandlerOptions,
+  Pluggable
 } from "@aws-sdk/types";
 import { HttpRequest } from "@aws-sdk/protocol-http";
 
@@ -17,14 +20,14 @@ export function applyBodyChecksumMiddleware(
   encoder: Encoder,
   streamHasher: StreamHasher<any> = throwOnStream
 ): BuildMiddleware<any, any> {
-  return <Output extends object>(
+  return <Output extends MetadataBearer>(
     next: BuildHandler<any, Output>
-  ): BuildHandler<any, Output> => async ({
-    request,
-    input
-  }: BuildHandlerArguments<any>): Promise<BuildHandlerOutput<Output>> => {
+  ): BuildHandler<any, Output> => async (
+    args: BuildHandlerArguments<any>
+  ): Promise<BuildHandlerOutput<Output>> => {
+    let request = { ...args.request };
     if (!HttpRequest.isInstance(request)) {
-      return next({ input, request });
+      return next({ ...args, request });
     }
     const { body, headers } = request;
     if (!hasHeader(headerName, headers)) {
@@ -52,9 +55,34 @@ export function applyBodyChecksumMiddleware(
       };
     }
 
-    return next({ input, request });
+    return next({ ...args, request });
   };
 }
+
+export const applyBodyChecksumMiddlewareOptions: BuildHandlerOptions = {
+  step: "build",
+  tags: ["APPLY_BODY_CHECKSUM", "BODY_CHECKSUM"],
+  name: "applyBodyChecksumMiddleware"
+};
+
+export const getApplyBodyChecksumPlugin = (options: {
+  headerName: string;
+  hashCtor: { new (): Hash };
+  encoder: Encoder;
+  streamHasher: StreamHasher<any>;
+}): Pluggable<any, any> => ({
+  applyToStack: clientStack => {
+    clientStack.add(
+      applyBodyChecksumMiddleware(
+        options.headerName,
+        options.hashCtor,
+        options.encoder,
+        options.streamHasher
+      ),
+      applyBodyChecksumMiddlewareOptions
+    );
+  }
+});
 
 function hasHeader(soughtHeader: string, headers: HeaderBag): boolean {
   soughtHeader = soughtHeader.toLowerCase();
