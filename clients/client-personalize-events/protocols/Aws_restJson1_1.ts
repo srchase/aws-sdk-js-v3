@@ -1,19 +1,16 @@
 import {
   PutEventsCommandInput,
-  PutEventsCommandOutput,
+  PutEventsCommandOutput
 } from "../commands/PutEventsCommand";
-import {
-  Event,
-  InvalidInputException,
-} from "../models/index";
+import { Event, InvalidInputException } from "../models/index";
 import {
   HttpRequest as __HttpRequest,
-  HttpResponse as __HttpResponse,
+  HttpResponse as __HttpResponse
 } from "@aws-sdk/protocol-http";
 import {
   SerdeContext,
   Endpoint as __Endpoint,
-  ResponseMetadata as __ResponseMetadata,
+  ResponseMetadata as __ResponseMetadata
 } from "@aws-sdk/types";
 
 export function serializeAws_restJson1_1PutEventsCommand(
@@ -21,20 +18,23 @@ export function serializeAws_restJson1_1PutEventsCommand(
   context: SerdeContext
 ): __HttpRequest {
   let headers: any = {};
-  headers['Content-Type'] = "application/x-amz-json-1.1";
+  headers["Content-Type"] = "application/x-amz-json-1.1";
   let body: any = undefined;
   let bodyParams: any = {};
   if (input.eventList !== undefined) {
-    bodyParams['eventList'] = serializeAws_restJson1_1EventList(input.eventList, context);
+    bodyParams["eventList"] = serializeAws_restJson1_1EventList(
+      input.eventList,
+      context
+    );
   }
   if (input.sessionId !== undefined) {
-    bodyParams['sessionId'] = input.sessionId;
+    bodyParams["sessionId"] = input.sessionId;
   }
   if (input.trackingId !== undefined) {
-    bodyParams['trackingId'] = input.trackingId;
+    bodyParams["trackingId"] = input.trackingId;
   }
   if (input.userId !== undefined) {
-    bodyParams['userId'] = input.userId;
+    bodyParams["userId"] = input.userId;
   }
   body = JSON.stringify(bodyParams);
   return new __HttpRequest({
@@ -43,7 +43,7 @@ export function serializeAws_restJson1_1PutEventsCommand(
     method: "POST",
     path: "/events",
     headers: headers,
-    body: body,
+    body: body
   });
 }
 
@@ -54,21 +54,21 @@ export async function deserializeAws_restJson1_1PutEventsCommand(
   if (output.statusCode !== 200) {
     return deserializeAws_restJson1_1PutEventsCommandError(output, context);
   }
-  let data: any = await parseBody(output.body, context)
+  let data: any = await parseBody(output.body, context);
   let contents: PutEventsCommandOutput = {
-    $metadata: deserializeMetadata(output),
+    $metadata: deserializeMetadata(output)
   };
   return Promise.resolve(contents);
 }
 
 async function deserializeAws_restJson1_1PutEventsCommandError(
   output: __HttpResponse,
-  context: SerdeContext,
-): Promise<./commands/PutEventsCommand/PutEventsCommandOutput> {
+  context: SerdeContext
+): Promise<PutEventsCommandOutput> {
   let data: any = await parseBody(output.body, context);
   let response: any;
   let errorCode: String;
-  errorCode = output.headers["x-amzn-errortype"].split(':')[0];
+  errorCode = output.headers["x-amzn-errortype"].split(":")[0];
   switch (errorCode) {
     case "InvalidInputException":
     case "com.amazonaws.services.personalize.events.exceptions#InvalidInputException":
@@ -79,7 +79,7 @@ async function deserializeAws_restJson1_1PutEventsCommandError(
       response = {
         __type: `com.amazonaws.services.personalize.events#${errorCode}`,
         $name: errorCode,
-        $fault: "client",
+        $fault: "client"
       };
   }
   return Promise.reject(response);
@@ -91,19 +91,19 @@ const serializeAws_restJson1_1Event = (
 ): any => {
   let bodyParams: any = {};
   if (input.eventId !== undefined) {
-    bodyParams['eventId'] = input.eventId;
+    bodyParams["eventId"] = input.eventId;
   }
   if (input.eventType !== undefined) {
-    bodyParams['eventType'] = input.eventType;
+    bodyParams["eventType"] = input.eventType;
   }
   if (input.properties !== undefined) {
-    bodyParams['properties'] = input.properties;
+    bodyParams["properties"] = input.properties;
   }
   if (input.sentAt !== undefined) {
-    bodyParams['sentAt'] = Math.round(input.sentAt.getTime() / 1000);
+    bodyParams["sentAt"] = Math.round(input.sentAt.getTime() / 1000);
   }
   return bodyParams;
-}
+};
 
 const serializeAws_restJson1_1EventList = (
   input: Array<Event>,
@@ -112,7 +112,7 @@ const serializeAws_restJson1_1EventList = (
   return (input || []).map(entry =>
     serializeAws_restJson1_1Event(entry, context)
   );
-}
+};
 
 const deserializeAws_restJson1_1InvalidInputException = (
   output: any,
@@ -121,13 +121,13 @@ const deserializeAws_restJson1_1InvalidInputException = (
   let contents: any = {
     __type: "InvalidInputException",
     $fault: "client",
-    message: undefined,
+    message: undefined
   };
   if (output.message !== undefined) {
     contents.message = output.message;
   }
   return contents;
-}
+};
 
 const deserializeMetadata = (output: __HttpResponse): __ResponseMetadata => ({
   httpStatusCode: output.statusCode,

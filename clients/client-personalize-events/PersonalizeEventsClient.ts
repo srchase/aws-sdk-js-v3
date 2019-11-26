@@ -6,32 +6,32 @@ import {
   RegionInputConfig,
   RegionResolvedConfig,
   resolveEndpointsConfig,
-  resolveRegionConfig,
+  resolveRegionConfig
 } from "@aws-sdk/config-resolver";
 import { getContentLengthPlugin } from "@aws-sdk/middleware-content-length";
 import {
   RetryInputConfig,
   RetryResolvedConfig,
   getRetryPlugin,
-  resolveRetryConfig,
+  resolveRetryConfig
 } from "@aws-sdk/middleware-retry";
 import {
   AwsAuthInputConfig,
   AwsAuthResolvedConfig,
   getAwsAuthPlugin,
-  resolveAwsAuthConfig,
+  resolveAwsAuthConfig
 } from "@aws-sdk/middleware-signing";
 import {
   UserAgentInputConfig,
   UserAgentResolvedConfig,
   getUserAgentPlugin,
-  resolveUserAgentConfig,
+  resolveUserAgentConfig
 } from "@aws-sdk/middleware-user-agent";
 import { HttpHandler as __HttpHandler } from "@aws-sdk/protocol-http";
 import {
   Client as __Client,
   SmithyConfiguration as __SmithyConfiguration,
-  SmithyResolvedConfiguration as __SmithyResolvedConfiguration,
+  SmithyResolvedConfiguration as __SmithyResolvedConfiguration
 } from "@aws-sdk/smithy-client";
 import {
   Credentials as __Credentials,
@@ -41,13 +41,12 @@ import {
   HttpOptions as __HttpOptions,
   Provider as __Provider,
   StreamCollector as __StreamCollector,
-  UrlParser as __UrlParser,
+  UrlParser as __UrlParser
 } from "@aws-sdk/types";
 
-export type ServiceInputTypes =
-  | PutEventsRequest;
+export type ServiceInputTypes = PutEventsRequest;
 
-export type ServiceOutputTypes =
+export type ServiceOutputTypes = any;
 
 export interface ClientRuntimeDependencies {
   service?: string;
@@ -121,24 +120,27 @@ export interface ClientRuntimeDependencies {
    * Provider function that return promise of a region string
    */
   regionDefaultProvider?: (input: any) => __Provider<string>;
-
 }
 
-export type PersonalizeEventsClientConfig = Partial<__SmithyConfiguration<__HttpOptions>>
-  & ClientRuntimeDependencies
-  & RegionInputConfig
-  & AwsAuthInputConfig
-  & EndpointsInputConfig
-  & RetryInputConfig
-  & UserAgentInputConfig
+export type PersonalizeEventsClientConfig = Partial<
+  __SmithyConfiguration<__HttpOptions>
+> &
+  ClientRuntimeDependencies &
+  RegionInputConfig &
+  AwsAuthInputConfig &
+  EndpointsInputConfig &
+  RetryInputConfig &
+  UserAgentInputConfig;
 
-export type PersonalizeEventsClientResolvedConfig = __SmithyResolvedConfiguration<__HttpOptions>
-  & Required<ClientRuntimeDependencies>
-  & RegionResolvedConfig
-  & AwsAuthResolvedConfig
-  & EndpointsResolvedConfig
-  & RetryResolvedConfig
-  & UserAgentResolvedConfig
+export type PersonalizeEventsClientResolvedConfig = __SmithyResolvedConfiguration<
+  __HttpOptions
+> &
+  Required<ClientRuntimeDependencies> &
+  RegionResolvedConfig &
+  AwsAuthResolvedConfig &
+  EndpointsResolvedConfig &
+  RetryResolvedConfig &
+  UserAgentResolvedConfig;
 
 /**
  *
@@ -154,7 +156,8 @@ export class PersonalizeEventsClient extends __Client<
   __HttpOptions,
   ServiceInputTypes,
   ServiceOutputTypes,
-  PersonalizeEventsClientResolvedConfig> {
+  PersonalizeEventsClientResolvedConfig
+> {
   readonly config: PersonalizeEventsClientResolvedConfig;
 
   constructor(configuration: PersonalizeEventsClientConfig) {
@@ -175,6 +178,5 @@ export class PersonalizeEventsClient extends __Client<
     this.middlewareStack.use(getContentLengthPlugin(this.config));
   }
 
-  destroy(): void {
-  }
+  destroy(): void {}
 }
