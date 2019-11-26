@@ -56,7 +56,13 @@ public class AddBuiltinPlugins implements TypeScriptIntegration {
                 RuntimeClientPlugin.builder()
                         .withConventions("@aws-sdk/middleware-route53-id-normalizer", "^0.1.0-preview.5",
                                          "Route53IdNormalizer", HAS_MIDDLEWARE)
-                        .servicePredicate((m,s) -> s.getId().getName().equals("Route53"))
+                        .servicePredicate((m,s) -> s.getId().getName().equals("AWSDnsV20130401"))
+                        .build(),
+                RuntimeClientPlugin.builder()
+                        .withConventions("@aws-sdk/middleware-route53-id-normalizer", "^0.1.0-preview.5",
+                                         "Route53ChangeBatchAliasTargetIdNormalizer", HAS_MIDDLEWARE)
+                        .servicePredicate((m,s) -> s.getId().getName().equals("AWSDnsV20130401"))
+                        .operationPredicate((m,s,o) -> o.getId().getName().equals("ChangeResourceRecordSets"))
                         .build()
         );
     }

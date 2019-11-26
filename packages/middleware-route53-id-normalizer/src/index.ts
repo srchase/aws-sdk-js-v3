@@ -8,6 +8,7 @@ import {
   MetadataBearer,
   Pluggable
 } from "@aws-sdk/types";
+import { anyTypeAnnotation } from "@babel/types";
 
 export interface IdentifierBearer {
   DelegationSetId?: string;
@@ -75,11 +76,15 @@ export interface ChangeBatchBearer {
   };
 }
 
-export function changeBatchAliasTargetIdNormalizerMiddleware<
-  Input extends ChangeBatchBearer,
-  Output extends object
->(next: Handler<Input, Output>): Handler<Input, Output> {
-  return async (args: HandlerArguments<Input>): Promise<Output> => {
+export function route53ChangeBatchAliasTargetIdNormalizerMiddleware(): InitializeMiddleware<
+  any,
+  any
+> {
+  return <Output extends MetadataBearer>(
+    next: InitializeHandler<any, Output>
+  ): InitializeHandler<any, Output> => async (
+    args: InitializeHandlerArguments<any>
+  ): Promise<InitializeHandlerOutput<Output>> => {
     const { ChangeBatch } = args.input;
     const Changes: Array<Change> = [];
     for (const change of ChangeBatch.Changes) {
@@ -115,3 +120,21 @@ export function changeBatchAliasTargetIdNormalizerMiddleware<
     });
   };
 }
+
+export const route53ChangeBatchAliasTargetIdNormalizerMiddlewareOptions: InitializeHandlerOptions = {
+  step: "initialize",
+  tags: ["NORMALIZE_ROUTE53_IDS", "ROUT53_IDS"],
+  name: "idNormalizerMiddleware"
+};
+
+export const getRoute53ChangeBatchAliasTargetIdNormalizerPlugin = (): Pluggable<
+  any,
+  any
+> => ({
+  applyToStack: clientStack => {
+    clientStack.add(
+      route53ChangeBatchAliasTargetIdNormalizerMiddleware(),
+      route53ChangeBatchAliasTargetIdNormalizerMiddlewareOptions
+    );
+  }
+});
