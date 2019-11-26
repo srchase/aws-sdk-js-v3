@@ -1,4 +1,13 @@
-import { Handler, HandlerArguments } from "@aws-sdk/types";
+import {
+  Handler,
+  InitializeHandler,
+  InitializeHandlerArguments,
+  InitializeHandlerOptions,
+  InitializeHandlerOutput,
+  InitializeMiddleware,
+  MetadataBearer,
+  Pluggable
+} from "@aws-sdk/types";
 
 export interface IdentifierBearer {
   DelegationSetId?: string;
@@ -14,11 +23,15 @@ const IDENTIFIER_PARAMETERS: Array<keyof IdentifierBearer> = [
 
 const IDENTIFIER_PREFIX_PATTERN = /^\/(hostedzone|change|delegationset)\//;
 
-export function idNormalizerMiddleware<
-  Input extends IdentifierBearer,
-  Output extends object
->(next: Handler<Input, Output>): Handler<Input, Output> {
-  return async (args: HandlerArguments<Input>): Promise<Output> => {
+export function route53IdNormalizerMiddleware(): InitializeMiddleware<
+  any,
+  any
+> {
+  return <Output extends MetadataBearer>(
+    next: InitializeHandler<any, Output>
+  ): InitializeHandler<any, Output> => async (
+    args: InitializeHandlerArguments<any>
+  ): Promise<InitializeHandlerOutput<Output>> => {
     const input = { ...(args.input as any) };
     for (const paramName of IDENTIFIER_PARAMETERS) {
       const param = input[paramName];
@@ -26,13 +39,27 @@ export function idNormalizerMiddleware<
         input[paramName] = param.replace(IDENTIFIER_PREFIX_PATTERN, "");
       }
     }
-
     return next({
       ...args,
       input
     });
   };
 }
+
+export const route53IdNormalizerMiddlewareOptions: InitializeHandlerOptions = {
+  step: "initialize",
+  tags: ["NORMALIZE_ROUTE53_IDS", "ROUT53_IDS"],
+  name: "idNormalizerMiddleware"
+};
+
+export const getRoute53IdNormalizerPlugin = (): Pluggable<any, any> => ({
+  applyToStack: clientStack => {
+    clientStack.add(
+      route53IdNormalizerMiddleware(),
+      route53IdNormalizerMiddlewareOptions
+    );
+  }
+});
 
 export interface Change {
   ResourceRecordSet: {
