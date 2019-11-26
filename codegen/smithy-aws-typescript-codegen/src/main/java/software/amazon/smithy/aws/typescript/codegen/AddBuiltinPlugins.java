@@ -55,7 +55,7 @@ public class AddBuiltinPlugins implements TypeScriptIntegration {
                         .build(),
                 RuntimeClientPlugin.builder()
                         .withConventions("@aws-sdk/middleware-route53-id-normalizer", "^0.1.0-preview.5",
-                                         Route53IdNormalizer, HAS_MIDDLEWARE)
+                                         "Route53IdNormalizer", HAS_MIDDLEWARE)
                         .servicePredicate((m,s) -> s.getId().getName().equals("Route53"))
                         .build()
         );
