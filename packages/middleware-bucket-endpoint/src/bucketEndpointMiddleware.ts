@@ -1,10 +1,15 @@
 import { bucketHostname } from "./bucketHostname";
+import { BucketEndpointResolvedConfig } from "./configurations";
 import {
   BuildHandler,
   BuildHandlerArguments,
+  BuildHandlerOptions,
+  BuildHandlerOutput,
   BuildMiddleware,
-  MetadataBearer
+  MetadataBearer,
+  Pluggable
 } from "@aws-sdk/types";
+import { HttpRequest } from "@aws-sdk/protocol-http";
 
 export interface BucketEndpointAwareInput {
   Bucket: string;
@@ -21,33 +26,26 @@ export interface bucketEndpointMiddlewareConfiguration {
   useDualstackEndpoint?: boolean;
 }
 
-export function bucketEndpointMiddleware({
-  forcePathStyle = false,
-  preformedBucketEndpoint = false,
-  useAccelerateEndpoint = false,
-  useDualstackEndpoint = false
-}: bucketEndpointMiddlewareConfiguration = {}): BuildMiddleware<any, any, any> {
-  return <
-    Input extends BucketEndpointAwareInput,
-    Output extends MetadataBearer
-  >(
-    next: BuildHandler<Input, Output, any>
-  ): BuildHandler<Input, Output, any> => async (
-    args: BuildHandlerArguments<Input, any>
-  ): Promise<Output> => {
+export function bucketEndpointMiddleware(
+  options: BucketEndpointResolvedConfig
+): BuildMiddleware<any, any> {
+  return <Output extends MetadataBearer>(
+    next: BuildHandler<any, Output>
+  ): BuildHandler<any, Output> => async (
+    args: BuildHandlerArguments<any>
+  ): Promise<BuildHandlerOutput<Output>> => {
     const {
       Bucket: bucketName,
       $bucketEndpoint,
-      $forcePathStyle = forcePathStyle,
-      $useAccelerateEndpoint = useAccelerateEndpoint,
-      $useDualstackEndpoint = useDualstackEndpoint
+      $forcePathStyle = options.forcePathStyle,
+      $useAccelerateEndpoint = options.useAccelerateEndpoint,
+      $useDualstackEndpoint = options.useDualstackEndpoint
     } = args.input;
-    let replaceBucketInPath = preformedBucketEndpoint || $bucketEndpoint;
-    const request = { ...args.request };
-
+    let replaceBucketInPath = options.preformedBucketEndpoint || $bucketEndpoint;
+    let request = args.request;
     if ($bucketEndpoint) {
       request.hostname = bucketName;
-    } else if (!preformedBucketEndpoint) {
+    } else if (!options.preformedBucketEndpoint) {
       const { hostname, bucketEndpoint } = bucketHostname({
         bucketName,
         baseHostname: request.hostname,
@@ -71,3 +69,17 @@ export function bucketEndpointMiddleware({
     return next({ ...args, request });
   };
 }
+
+export const bucketEndpointMiddlewareOptions: BuildHandlerOptions = {
+  step: "build",
+  tags: ["BUCKET_ENDPOINT"],
+  name: "bucketEndpointMiddleware"
+};
+
+export const getBucketEndpointPlugin = (
+  options: BucketEndpointResolvedConfig
+): Pluggable<any, any> => ({
+  applyToStack: clientStack => ({
+    clientStack.add(bucketEndpointMiddleware(options), bucketEndpointMiddlewareOptions);
+  })
+});
