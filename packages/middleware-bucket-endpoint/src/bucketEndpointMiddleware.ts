@@ -41,28 +41,31 @@ export function bucketEndpointMiddleware(
       $useAccelerateEndpoint = options.useAccelerateEndpoint,
       $useDualstackEndpoint = options.useDualstackEndpoint
     } = args.input;
-    let replaceBucketInPath = options.preformedBucketEndpoint || $bucketEndpoint;
+    let replaceBucketInPath =
+      options.preformedBucketEndpoint || $bucketEndpoint;
     let request = args.request;
-    if ($bucketEndpoint) {
-      request.hostname = bucketName;
-    } else if (!options.preformedBucketEndpoint) {
-      const { hostname, bucketEndpoint } = bucketHostname({
-        bucketName,
-        baseHostname: request.hostname,
-        accelerateEndpoint: $useAccelerateEndpoint,
-        dualstackEndpoint: $useDualstackEndpoint,
-        pathStyleEndpoint: $forcePathStyle,
-        sslCompatible: request.protocol === "https:"
-      });
+    if (HttpRequest.isInstance(request)) {
+      if ($bucketEndpoint) {
+        request.hostname = bucketName;
+      } else if (!options.preformedBucketEndpoint) {
+        const { hostname, bucketEndpoint } = bucketHostname({
+          bucketName,
+          baseHostname: request.hostname,
+          accelerateEndpoint: $useAccelerateEndpoint,
+          dualstackEndpoint: $useDualstackEndpoint,
+          pathStyleEndpoint: $forcePathStyle,
+          sslCompatible: request.protocol === "https:"
+        });
 
-      request.hostname = hostname;
-      replaceBucketInPath = bucketEndpoint;
-    }
+        request.hostname = hostname;
+        replaceBucketInPath = bucketEndpoint;
+      }
 
-    if (replaceBucketInPath) {
-      request.path = request.path.replace(/^(\/)?[^\/]+/, "");
-      if (request.path === "") {
-        request.path = "/";
+      if (replaceBucketInPath) {
+        request.path = request.path.replace(/^(\/)?[^\/]+/, "");
+        if (request.path === "") {
+          request.path = "/";
+        }
       }
     }
 
@@ -79,7 +82,10 @@ export const bucketEndpointMiddlewareOptions: BuildHandlerOptions = {
 export const getBucketEndpointPlugin = (
   options: BucketEndpointResolvedConfig
 ): Pluggable<any, any> => ({
-  applyToStack: clientStack => ({
-    clientStack.add(bucketEndpointMiddleware(options), bucketEndpointMiddlewareOptions);
-  })
+  applyToStack: clientStack => {
+    clientStack.add(
+      bucketEndpointMiddleware(options),
+      bucketEndpointMiddlewareOptions
+    );
+  }
 });
