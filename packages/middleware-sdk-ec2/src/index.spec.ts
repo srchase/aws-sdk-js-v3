@@ -1,24 +1,19 @@
-import { addPresignedUrl } from "./index";
-import {
-  context,
-  MockSha256,
-  region,
+import { copySnapshotPresignedUrlMiddleware } from "./index";
+import { credentials, endpoint, region, MockSha256 } from "./fixture";
+
+const nextHandler = jest.fn();
+const handler = copySnapshotPresignedUrlMiddleware({
   credentials,
   endpoint,
-  toBase64,
-  fromUtf8,
-  nextHandler
-} from "./fixture";
+  region,
+  sha256: MockSha256,
+  signingEscapePath: true
+})(nextHandler, {} as any);
 
-describe("copySnapshotPresignedUrl", () => {
-  const handler = addPresignedUrl({
-    region,
-    credentials,
-    endpoint,
-    base64Encoder: toBase64,
-    utf8Decoder: fromUtf8,
-    sha256: MockSha256
-  })(nextHandler, context);
+describe("middleware-sdk-ec2", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   it("generates PresignedUrl and DestinationRegion parameters", async () => {
     const params = {
@@ -49,5 +44,18 @@ describe("copySnapshotPresignedUrl", () => {
     expect(presignedUrl).toMatch(/X\-Amz\-Date\=/);
     expect(presignedUrl).toMatch(/X-Amz-Expires=([\d]+)/);
     expect(presignedUrl).toMatch(/X-Amz-Signature=000000/);
+  });
+
+  it("does not modify input if PresignedUrl has already  been set", async () => {
+    const params = {
+      PresignedUrl: "provided",
+      SourceRegion: "src-region",
+      SourceSnapshotId: "snap-123456789"
+    };
+    await handler({ input: params });
+    expect(nextHandler.mock.calls.length).toBe(1);
+    const middlewareOutput = nextHandler.mock.calls[0][0];
+    expect(middlewareOutput.input.SourceRegion).toEqual(params.SourceRegion);
+    expect(middlewareOutput.input.PresignedUrl).toEqual(params.PresignedUrl);
   });
 });
