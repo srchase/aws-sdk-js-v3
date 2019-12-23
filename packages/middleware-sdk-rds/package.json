@@ -1,5 +1,5 @@
 {
-  "name": "@aws-sdk/middleware-rds-presignedurl",
+  "name": "@aws-sdk/middleware-sdk-rds",
   "version": "0.1.0-preview.7",
   "scripts": {
     "prepublishOnly": "tsc",
@@ -14,9 +14,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/protocol-query": "^0.1.0-preview.6",
-    "@aws-sdk/query-builder": "^0.1.0-preview.5",
-    "@aws-sdk/query-request-presigner": "^0.1.0-preview.7",
+    "@aws-sdk/signature-v4": "^0.1.0-preview.7",
     "@aws-sdk/types": "^0.1.0-preview.5",
     "@aws-sdk/util-format-url": "^0.1.0-preview.5",
     "tslib": "^1.8.0"
